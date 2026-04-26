@@ -1,0 +1,26 @@
+name: Hermes Loop - Auto Assign to Copilot
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  assign-to-copilot:
+    if: contains(github.event.issue.labels.*.name, 'hermes-task')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Assign issue to Copilot
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              assignees: ["copilot-swe-agent"]
+            });
+            console.log("Assigned to copilot-swe-agent");
